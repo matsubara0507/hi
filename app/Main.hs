@@ -31,7 +31,15 @@ data Cmd = Insert String
          deriving (Show)
 
 mkInitEState :: Args -> IO EState
-mkInitEState = undefined
+mkInitEState args = do
+  file <- lines <$> readFile filepath
+  return $ EState filepath file (0, 0)
+  where
+    filepath = argsToFilePath args
+
+argsToFilePath :: Args -> FilePath
+argsToFilePath [] = error "few arguments"
+argsToFilePath (x:_) = x
 
 readCmd :: IO Cmd
 readCmd = undefined
