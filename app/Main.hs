@@ -42,7 +42,16 @@ argsToFilePath [] = error "few arguments"
 argsToFilePath (x:_) = x
 
 readCmd :: IO Cmd
-readCmd = undefined
+readCmd = toCmd <$> getLine
+
+toCmd :: String -> Cmd
+toCmd "h" = LeftCursor
+toCmd "j" = DownCursor
+toCmd "k" = UpCursor
+toCmd "l" = RightCursor
+toCmd "x" = Delete
+toCmd ('a' : ' ' : txt) = Insert txt
+toCmd s = error $ mconcat ["undefined command \"", s, "\""]
 
 edit :: Cmd -> EState -> EState
 edit = undefined
