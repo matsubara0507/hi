@@ -62,20 +62,21 @@ updateFile Delete       es@(EState _ fc (r,c)) = es { getFileContents = deleteCh
 updateFile _ es = es
 
 insertTextOnFile :: String -> Int -> Int -> File -> File
-insertTextOnFile txt c 0 (x:xs) = insertTextOnLine txt c x : xs
-insertTextOnFile txt c n (x:xs) = x : insertTextOnFile txt c (n - 1) xs
+insertTextOnFile txt c = updateOn (\(x:xs) -> insertTextOnLine txt c x : xs)
 
 insertTextOnLine :: String -> Int -> String -> String
-insertTextOnLine txt 0 line = txt `mappend` line
-insertTextOnLine txt n (x:xs) = x : insertTextOnLine txt (n-1) xs
+insertTextOnLine txt = updateOn (mappend txt)
 
 deleteCharOnFile :: Int -> Int -> File -> File
-deleteCharOnFile c 0 (x:xs) = deleteCharOnLine c x : xs
-deleteCharOnFile c n (x:xs) = x : deleteCharOnFile c (n-1) xs
+deleteCharOnFile c = updateOn (\(x:xs) -> deleteCharOnLine c x : xs)
 
 deleteCharOnLine :: Int -> String -> String
-deleteCharOnLine 0 (x:xs) = xs
-deleteCharOnLine n (x:xs) = x : deleteCharOnLine (n-1) xs
+deleteCharOnLine = updateOn tail
+
+updateOn :: ([a] -> [a]) -> Int -> [a] -> [a]
+updateOn f 0 xs = f xs
+updateOn f n (x:xs') = x : updateOn f (n - 1) xs'
+updateOn _ n [] = error $ "List is empty on " `mappend` (show n)
 
 updateCursor :: Cmd -> EState -> EState
 updateCursor cmd es@(EState _ fc csr) = es { getCursor = (r', c') }
