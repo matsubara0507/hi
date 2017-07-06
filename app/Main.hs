@@ -57,21 +57,21 @@ edit :: Cmd -> EState -> EState
 edit cmd = updateFile cmd . moveCursor cmd
 
 updateFile :: Cmd -> EState -> EState
-updateFile (Insert txt) es@(EState _ fc (r,c)) = es { getFileContents = insertTextOnFile r c fc txt }
-updateFile Delete       es@(EState _ fc (r,c)) = es { getFileContents = deleteCharOnFile r c fc }
+updateFile (Insert txt) es@(EState _ fc (r,c)) = es { getFileContents = insertTextOnFile txt c r fc }
+updateFile Delete       es@(EState _ fc (r,c)) = es { getFileContents = deleteCharOnFile c r fc }
 updateFile _ es = es
 
-insertTextOnFile :: Int -> Int -> File -> String -> File
-insertTextOnFile 0 c (x:xs) txt = insertTextOnLine c x txt : xs
-insertTextOnFile n c (x:xs) txt = x : insertTextOnFile (n-1) c xs txt
+insertTextOnFile :: String -> Int -> Int -> File -> File
+insertTextOnFile txt c 0 (x:xs) = insertTextOnLine txt c x : xs
+insertTextOnFile txt c n (x:xs) = x : insertTextOnFile txt c (n - 1) xs
 
-insertTextOnLine :: Int -> String -> String -> String
-insertTextOnLine 0 line txt = txt `mappend` line
-insertTextOnLine n (x:xs) txt = x : insertTextOnLine (n-1) xs txt
+insertTextOnLine :: String -> Int -> String -> String
+insertTextOnLine txt 0 line = txt `mappend` line
+insertTextOnLine txt n (x:xs) = x : insertTextOnLine txt (n-1) xs
 
 deleteCharOnFile :: Int -> Int -> File -> File
-deleteCharOnFile 0 c (x:xs) = deleteCharOnLine c x : xs
-deleteCharOnFile n c (x:xs) = x : deleteCharOnFile (n-1) c xs
+deleteCharOnFile c 0 (x:xs) = deleteCharOnLine c x : xs
+deleteCharOnFile c n (x:xs) = x : deleteCharOnFile c (n-1) xs
 
 deleteCharOnLine :: Int -> String -> String
 deleteCharOnLine 0 (x:xs) = xs
