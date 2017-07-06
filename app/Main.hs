@@ -54,7 +54,7 @@ toCmd ('a' : ' ' : txt) = Insert txt
 toCmd s = error $ mconcat ["undefined command \"", s, "\""]
 
 edit :: Cmd -> EState -> EState
-edit cmd = updateFile cmd . moveCursor cmd
+edit cmd = updateFile cmd . updateCursor cmd
 
 updateFile :: Cmd -> EState -> EState
 updateFile (Insert txt) es@(EState _ fc (r,c)) = es { getFileContents = insertTextOnFile txt c r fc }
@@ -77,11 +77,16 @@ deleteCharOnLine :: Int -> String -> String
 deleteCharOnLine 0 (x:xs) = xs
 deleteCharOnLine n (x:xs) = x : deleteCharOnLine (n-1) xs
 
-moveCursor :: Cmd -> EState -> EState
-moveCursor cmd es@(EState _ fc csr) = es { getCursor = moveCursor' cmd csr}
+updateCursor :: Cmd -> EState -> EState
+updateCursor cmd es@(EState _ fc csr) = es { getCursor = (r', c') }
   where
-    moveCursor' UpCursor    (r,c) = (r - (if r > 0 then 1 else 0), c)
-    moveCursor' DownCursor  (r,c) = (r + (if r < length fc - 1 then 1 else 0), c)
-    moveCursor' LeftCursor  (r,c) = (r, c - (if c > 0 then 1 else 0))
-    moveCursor' RightCursor (r,c) = (r, c + (if c < length (fc !! r) - 1 then 1 else 0))
-    moveCursor' _ csr = csr
+    (r, c) = moveCursor cmd csr
+    r' = max 0 $ min (length fc) r
+    c' = max 0 $ min (length $ fc !! r') c
+
+moveCursor :: Cmd -> Cursor -> Cursor
+moveCursor UpCursor    (r, c) = (r - 1, c)
+moveCursor DownCursor  (r, c) = (r + 1, c)
+moveCursor LeftCursor  (r, c) = (r, c - 1)
+moveCursor RightCursor (r, c) = (r, c + 1)
+moveCursor _ csr = csr
