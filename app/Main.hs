@@ -7,11 +7,15 @@ type Args = [String]
 
 hi :: Args -> IO ()
 hi args = do
-  es1 <- mkInitEState args
-  print es1
-  cmd <- readCmd
-  let es2 = edit cmd es1
-  print es2
+  initEs <- mkInitEState args
+  _ <- loopM (\es -> do
+    print es
+    cmd <- readCmd
+    return $ edit cmd es) initEs
+  return ()
+
+loopM :: (Monad m) => (a -> m a) -> a -> m a
+loopM f a = loopM f =<< f a
 
 type File = [String]
 type Cursor = (Int, Int)
