@@ -82,8 +82,8 @@ updateCursor :: Cmd -> EState -> EState
 updateCursor cmd es@(EState _ fc csr) = es { getCursor = (r', c') }
   where
     (r, c) = moveCursor cmd csr
-    r' = max 0 $ min (length fc) r
-    c' = max 0 $ min (length $ fc !! r') c
+    r' = max 0 $ min (length fc - 1) r
+    c' = max 0 $ min (length (fc !! r') - 1) c
 
 moveCursor :: Cmd -> Cursor -> Cursor
 moveCursor UpCursor    (r, c) = (r - 1, c)
