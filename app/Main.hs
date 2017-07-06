@@ -50,7 +50,7 @@ toCmd "j" = DownCursor
 toCmd "k" = UpCursor
 toCmd "l" = RightCursor
 toCmd "x" = Delete
-toCmd ('a' : ' ' : txt) = Insert txt
+toCmd ('i' : ' ' : txt) = Insert txt
 toCmd s = error $ mconcat ["undefined command \"", s, "\""]
 
 edit :: Cmd -> EState -> EState
